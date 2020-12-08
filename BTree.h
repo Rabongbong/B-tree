@@ -14,6 +14,7 @@ enum NodeType {
 	LEAF
 };
 
+
 class BTreeNode{   
   protected:
 	NodeType type;  // type.ROOT , type.INTERVAL, type.LEAF
@@ -22,9 +23,15 @@ class BTreeNode{
 	BTreeNode();
 	virtual ~BTreeNode() {}
 	NodeType getNodeType();
+	void set_type(NodeType type);
 	int get_order();
 	void set_order(int order);
   void add_order();    
+	virtual void insert_key(int a, long long value) {}
+	virtual void make_sibling(BTreeLeafNode * leafNode);
+	virtual long long get_key(int a) {return 0;}
+	virtual BTreeNode * get_child(int a) {return 0;}
+	virtual void make_child(int a, BTreeNode *node) {}
 };
 
 
@@ -35,7 +42,10 @@ class BTreeInternalNode:public BTreeNode{  // 상속  NodeType
   public:
 	BTreeInternalNode();
 	~BTreeInternalNode();
-	void BTreeinsert(int a, long long value);  // insert key
+	void insert_key(int a, long long value);    // insert key
+	long long get_key(int a);
+	BTreeNode * get_child(int a);
+	void make_child(int a, BTreeNode * node);   // point to child
 };
 
 class BTreeLeafNode:public BTreeNode{    // 상속  NodeType
@@ -45,7 +55,9 @@ class BTreeLeafNode:public BTreeNode{    // 상속  NodeType
   public:
 	BTreeLeafNode();
 	~BTreeLeafNode();
-	void BTreeinsert(int a, long long value);  // insert key
+	void insert_key(int a, long long value);  // insert key
+	void make_sibling(BTreeLeafNode * leafNode);  //get_sibling
+	BTreeLeafNode* get_sibling();
 	void printLeafNode(long long value); // print all keys in the current leaf node, separated by comma.
 };
 
