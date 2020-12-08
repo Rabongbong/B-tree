@@ -28,7 +28,7 @@ class BTreeNode{
 	int get_order();
 	void set_order(int order);
   void add_order();    
-	virtual void connect(BTreeNode* node);
+	//virtual void connect(BTreeNode* node);
 	virtual void insert_key(int a, long long value) {}
 	virtual long long get_key(int a) {return 0;}
 	virtual BTreeNode * get_child(int a) {return 0;}
@@ -58,7 +58,7 @@ class BTreeLeafNode:public BTreeNode{    // 상속  NodeType
   public:
 	BTreeLeafNode();
 	~BTreeLeafNode();
-	void connect(BTreeLeafNode* node) override;
+	//void connect(BTreeLeafNode* node) override;
 	void insert_key(int a, long long value);  // insert key
 	long long get_key(int a);
 	void printLeafNode(long long value); // print all keys in the current leaf node, separated by comma.
@@ -80,6 +80,7 @@ class BTree{
 	// print the found value or "NOT FOUND" if there is no value in the index
 	void rangeQuery(long long low, long long high); 
 	// print all found keys (low <= keys < high), separated by comma (e.g., 10, 11, 13, 15\n) 
-	void make_internal(BTreeNode * parent, BTreeLeafNode * leaf);
+	void make_internal(BTreeNode * parent, BTreeNode * leaf, long long value);
+	BTreeNode * find_parent(BTreeNode * child);
 };
 

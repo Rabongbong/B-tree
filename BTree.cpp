@@ -12,7 +12,7 @@ int BTreeNode::get_order(){
 }
 
 void BTreeNode::set_order(int order){      // 몇 개가 들어가있는지 정하기
-  this->order=order;
+  this->order = order;
 }
 
 void BTreeNode::set_type(NodeType type){
@@ -20,7 +20,7 @@ void BTreeNode::set_type(NodeType type){
 }
 
 void BTreeNode::add_order(){
-  order++;
+  this -> order++;
 }
 
 BTree::BTree() {
@@ -31,7 +31,7 @@ BTree::BTree() {
 BTree::~BTree() {}
 
 BTreeInternalNode::BTreeInternalNode(){
-  this -> set_type(INTERNAL);
+  this -> type = INTERNAL;
   keys[NUM_KEYS]={0, }; 
 }
 
@@ -42,7 +42,7 @@ void BTreeInternalNode::make_child(int a, BTreeNode * node){
 BTreeInternalNode::~BTreeInternalNode(){}
 
 BTreeLeafNode::BTreeLeafNode(){
-  this -> set_type(LEAF);
+  this -> type = LEAF;
   keys[NUM_KEYS]={0, };
 }
 
@@ -70,9 +70,9 @@ long long BTreeLeafNode::get_key(int a){
   return keys[a];
 }
 
-void BTreeLeafNode::connect(BTreeLeafNode* node){
-  right_sibling = node;
-}
+// void BTreeLeafNode::connect(BTreeLeafNode* node){
+//   right_sibling = node;
+// }
 
 
 void BTree::insert(long long value){
@@ -85,28 +85,36 @@ void BTree::insert(long long value){
     root = node;
   }
   else{    
-    BTreeNode * node = root;
+    BTreeNode * node = new BTreeNode();
+    node = root;
     BTreeNode * parent;
     BTreeLeafNode * new_node = new BTreeLeafNode();
     long long temp[NUM_KEYS+1];
     int j;
     int num;
-    new_node->set_type(LEAF);
-
+    int flag = 0;
+    //cout << node -> getNodeType() <<'\n';
+    
     while(node->getNodeType()!=LEAF){    // LEAF node의 depth로 들어간다.
       parent = node;  // parent node
-      for(int i=0; i<node->get_order(); i++){
+      cout << "hello" ;
+      for(int i = 0; i < node->get_order(); i++){
         if(value < node->get_key(i)){
             node = node -> get_child(i);
             break;
         }
         if(i == node -> get_order()-1){
-          node = node -> get_child(i+1);   // 가장 바깥쪽으로 간다.
+          node = node -> get_child(node->get_order());   // 가장 바깥쪽으로 간다.
           break;
         }
       }
     }
+    cout << "===================" <<'\n';
+    for(int i = 0; i< node ->get_order(); i++)
+      cout << node->get_key(i) << '\n';
+    cout << "===================" <<'\n';
     if(node->get_order() < NUM_KEYS){           // root만 존재   or  leaf안에 insert 
+
       for(int i = 0; i<=node->get_order(); i++){
         if(value < node -> get_key(i) && i != node->get_order()){
           for(j = node->get_order(); i < j; j--){
@@ -119,59 +127,86 @@ void BTree::insert(long long value){
           node->insert_key(i, value);
         }
       }
+
+
+      //cout << '2' << '\n';
       node -> add_order();
-      root = node;
+      cout << root ->get_order() <<'\n';
     }
     else{         // split
       j = 0;
+      cout << '3' << '\n';
       for(int i = 0; i < node->get_order(); i++){
-        if(value < node -> get_key(i)){
-          temp[j]=value;
+        if(value < node -> get_key(i) && flag == 0){
+          temp[j] = value;
           j++;
-          continue;
+          flag = 1;
         }
         temp[j] = node->get_key(i);
         j++;
       }
+
+      // for(int i=0; i<11; i++)
+      //   cout << temp[i] << '\n';
+      
       num = (NUM_KEYS/2) + 1;   // 6
       node -> set_order(0);
-      for(int i=0; i<num; i++){
+      for(int i = 0; i<num; i++){
+        //cout << '4' << '\n';
         node -> insert_key(i, temp[i]);
         node ->add_order();
       }
-      for(int i=num; i<NUM_KEYS; i++){
+
+      for(int i = num; i < NUM_KEYS; i++){
+        //cout << '5' << '\n';
         node -> insert_key(i, 0);
       }
+
       for(int i=0; i<5; i++){
+        //cout << '6' << '\n';
         new_node -> insert_key(i, temp[6+i]); 
         new_node -> add_order();
       }
-      if(!parent){
+
+      if(node ->getNodeType() == root->getNodeType()){
         BTreeInternalNode * internal_node = new BTreeInternalNode();
         internal_node -> set_type(ROOT);
         internal_node -> insert_key(0, new_node->get_key(0));
-        node -> connect(new_node);
+        //node -> connect(new_node);
         internal_node -> make_child(0, node);
         internal_node -> make_child(1, new_node);
         internal_node -> add_order();
         root = internal_node;
+        cout << root ->get_key(0) << '\n';
+        cout << root->getNodeType();
+        for(int i=0; i < root->get_child(0) ->get_order(); i++)
+          cout << root->get_child(0) ->get_key(i) << '\n';
+        cout << "---------------" <<'\n';
+        for(int i=0; i < root->get_child(1) ->get_order(); i++)
+          cout << root->get_child(1) ->get_key(i) << '\n';
       }
       else{
-        make_internal(parent, new_node);
+        cout << '8' << '\n';
+        make_internal(parent, new_node, new_node->get_key(0));
       }
     }
   }
 }
 
 
-void BTree::make_internal(BTreeNode * parent, BTreeLeafNode * child){
+void BTree::make_internal(BTreeNode * parent, BTreeNode * child, long long value){
   
   int num = parent -> get_order();
-  int value = child -> get_key(0);
   int M;
+  int j = 0;
+  int flag = 0;
+  long long k;
   long long temp[NUM_KEYS+1];
+  BTreeNode* point[NUM_KEYS+2];
   BTreeInternalNode * new_internal = new BTreeInternalNode();
-
+  new_internal ->set_type(INTERNAL);
+  cout << '9' << '\n';
+  cout << num;
   if(num < NUM_KEYS){
     for(int i = 0; i < num; i++){
       if(value < parent ->get_key(i) && i !=num){
@@ -188,49 +223,59 @@ void BTree::make_internal(BTreeNode * parent, BTreeLeafNode * child){
           parent -> make_child(i+1, child);
       }
     }
-    for(int i=0; i< num; i++){
-      parent ->get_child(i)->connect(parent ->get_child(i+1));
-    }
+    // for(int i=0; i< num; i++){
+    //   parent ->get_child(i)->connect(parent ->get_child(i+1));
+    // }
+    parent->add_order();
   }
   else{  // split
       for(int i = 0; i < num; i++){
-        if(value < parent -> get_key(i)){
+        if(value < parent -> get_key(i) && flag == 0){
           temp[j]=value;
+          point[j]=child;
           j++;
-          continue;
+          flag=1;
         }
         temp[j] = parent->get_key(i);
+        point[j] = parent->get_child(j);
         j++;
       }
-      M = (NUM_KEYS/2) ;   // 6
+      point[11] = parent->get_child(j+1);
+
+      M = (NUM_KEYS/2) ;   // 5
       parent -> set_order(0);
       for(int i = 0; i<M; i++){
         parent -> insert_key(i, temp[i]);
+        parent ->make_child(i, point[i]);
         parent ->add_order();
       }
+      parent ->make_child(5, point[5]);
+      k = parent ->get_key(5);
       for(int i=M; i<NUM_KEYS; i++){
         parent -> insert_key(i, 0);
       }
+
       for(int i=0; i<5; i++){
         new_internal -> insert_key(i, temp[6+i]); 
+        new_internal ->make_child(i, point[6+i]);
         new_internal -> add_order();
       }
+      new_internal ->make_child(11, point[11]);
+
       if(parent == root){
         BTreeInternalNode * internal_node = new BTreeInternalNode();
         internal_node -> set_type(ROOT);
-        internal_node -> insert_key(0, new_node->get_key(0));
-        node -> connect(new_node);
-        internal_node -> make_child(0, node);
-        internal_node -> make_child(1, new_node);
+        internal_node -> insert_key(0, k);
+        internal_node -> make_child(0, parent);
+        internal_node -> make_child(1, new_internal);
         internal_node -> add_order();
         root = internal_node;
       }
       else{
-        make_internal(parent, new_node);
+        make_internal(parent, new_internal, k);
       }
   }
 }
-
 
 void BTree::printLeafNode(long long value){
   BTreeNode * node = root;
