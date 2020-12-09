@@ -23,7 +23,7 @@ class BTreeNode{
   public:
 	BTreeNode();
 	virtual ~BTreeNode() {}
-	NodeType getNodeType();
+	NodeType getNodeType() {return type;}
 	void set_type(NodeType type);
 	int get_order();
 	void set_order(int order);
@@ -32,7 +32,7 @@ class BTreeNode{
 	virtual void insert_key(int a, long long value) {}
 	virtual long long get_key(int a) {return 0;}
 	virtual BTreeNode * get_child(int a) {return 0;}
-	virtual void make_child(int a, BTreeNode *node) {}
+	virtual void make_child(int a, BTreeNode* node) {}
 };
 
 
@@ -47,7 +47,7 @@ class BTreeInternalNode:public BTreeNode{  // 상속  NodeType
 	void insert_key(int a, long long value);    // insert key
 	long long get_key(int a);
 	BTreeNode * get_child(int a);
-	void make_child(int a, BTreeNode * node);   // point to child
+	void make_child(int a, BTreeNode* node);   // point to child
 };
 
 
@@ -63,6 +63,7 @@ class BTreeLeafNode:public BTreeNode{    // 상속  NodeType
 	long long get_key(int a);
 	void printLeafNode(long long value); // print all keys in the current leaf node, separated by comma.
 };
+
 
 
 class BTree{  
