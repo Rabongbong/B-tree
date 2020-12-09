@@ -174,7 +174,6 @@ void sort(long long value){
   
   int j=0;
   int chg = 0;
-
   if(data[0]==0){
     data[0]=value;
     return;
@@ -184,7 +183,6 @@ void sort(long long value){
       break;
     j++;
   }
-
   for(int i=0; i < j; i++){
     if(value <=data[i]){
       for(int k = j-1; i <= k; k--)
@@ -376,10 +374,9 @@ void BTree::rangeQuery(long long low, long long high){
   BTreeNode * parent;
   BTreeNode* point[NUM_KEYS+1];
   int i=0;
-
   parent = node;
   for(int i=0; i<node->get_order(); i++)
-    if( low <= node->get_key(i) && node->get_key(i) <= high){
+    if( low <= node->get_key(i) && node->get_key(i) <high){
       point[i] = node -> get_child(i);
     }  
   if(node -> get_child(10))
@@ -387,7 +384,7 @@ void BTree::rangeQuery(long long low, long long high){
 
 
   while(data[i]!=0){
-    if(low <= data[i] && data[i] <=high)
+    if(low <= data[i] && data[i] <high)
       cout << ", " << data[i];
     i++;
   }
