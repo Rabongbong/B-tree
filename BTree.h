@@ -1,5 +1,6 @@
 // Note: You need to add additional member variables and functions as you need.
 
+#include <iostream>
 #define NUM_KEYS 10 
 // NUM_KEYS should be set to make each tree node as large as 4KB. 
 // But for this assignment, we will set the degree of node small to make debugging and grading easy
@@ -28,7 +29,6 @@ class BTreeNode{
 	int get_order();
 	void set_order(int order);
   void add_order();    
-	//virtual void connect(BTreeNode* node);
 	virtual void insert_key(int a, long long value) {}
 	virtual long long get_key(int a) {return 0;}
 	virtual BTreeNode * get_child(int a) {return 0;}
@@ -54,11 +54,12 @@ class BTreeInternalNode:public BTreeNode{  // 상속  NodeType
 class BTreeLeafNode:public BTreeNode{    // 상속  NodeType
 	private:
 	long long keys[NUM_KEYS];
-	BTreeLeafNode* right_sibling;
+	BTreeNode* right_sibling;
   public:
 	BTreeLeafNode();
 	~BTreeLeafNode();
-	//void connect(BTreeLeafNode* node) override;
+	// void right_connect(BTreeNode* node) ;
+	// BTreeNode * get_right_sibling();
 	void insert_key(int a, long long value);  // insert key
 	long long get_key(int a);
 	void printLeafNode(long long value); // print all keys in the current leaf node, separated by comma.
@@ -81,7 +82,7 @@ class BTree{
 	// print the found value or "NOT FOUND" if there is no value in the index
 	void rangeQuery(long long low, long long high); 
 	// print all found keys (low <= keys < high), separated by comma (e.g., 10, 11, 13, 15\n) 
-	void make_internal(BTreeNode * parent, BTreeNode * leaf, long long value);
+	void make_internal(BTreeNode * parent, BTreeInternalNode * leaf, long long value);
 	BTreeNode * find_parent(BTreeNode * child);
 };
 
